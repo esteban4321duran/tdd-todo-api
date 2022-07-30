@@ -1,4 +1,4 @@
-import mongoose, { Collection, connection } from "mongoose";
+import mongoose from "mongoose";
 import { readFile } from "fs";
 import { resolve as resolvePath } from "path";
 export async function connect() {
@@ -12,7 +12,7 @@ type DatabaseCredentials = {
 export function readCredentials() {
   return new Promise<DatabaseCredentials>(async (resolve, reject) => {
     readFile(
-      resolvePath(__dirname, "../", "credentials.json"),
+      resolvePath(__dirname, "../../", "credentials.json"),
       "utf-8",
       (error, data) => {
         if (error) reject(error);
