@@ -12,12 +12,14 @@ describe("Task model create", () => {
       expect(newTask).toEqual(taskData);
     });
   });
+
   it("should create the Task t1 of default type for project p1", () => {
     const taskData = { title: "t1", projectName: "p1" };
     return model.create(taskData).then((newTask) => {
       expect(newTask).toEqual({ ...taskData, type: "testCase" });
     });
   });
+
   it("should create the Task t1 of default type for default project", () => {
     const taskData = { title: "t1" };
     return model.create(taskData).then((newTask) => {
@@ -45,7 +47,12 @@ describe("Task model read", () => {
       });
     });
   });
-  it("should reject with 'project not found' for project p3 that doesn't exist", () => {}); //TODO task model read project not found
+  it("should reject with 'project not found' for project p3 that doesn't exist", () => {
+    const nonExistentProject = "p3";
+    return expect(model.getTasksForProject(nonExistentProject)).rejects.toMatch(
+      "project not found"
+    );
+  });
 });
 
 describe("Task model update", () => {
@@ -77,10 +84,43 @@ describe("Task model update", () => {
   });
 });
 
-//TODO task model delete
 describe("Task model delete", () => {
-  it("should delete task t1", () => {});
-  it("should delete delete tasks t1 & t2 for project p1", () => {});
-  it("should reject with 'task not found' for task t3 that doesn't exist", () => {});
-  it("should reject with 'project not found' for project p3 that doesn't exist", () => {});
+  it("should delete task t1", async () => {
+    const taskData = await model.create({
+      title: "t1",
+      type: "testCase",
+      projectName: "p1",
+    });
+    return model.deleteTask(taskData).then((deletedCount) => {
+      expect(deletedCount).toBe(1);
+    });
+  });
+  it("should reject with 'task not found' for task t3 that doesn't exist", () => {
+    const nonExistentTask = {
+      title: "t3",
+      type: "testCase",
+      projectName: "p1",
+    };
+    return expect(model.deleteTask(nonExistentTask)).rejects.toMatch(
+      "task not found"
+    );
+  });
+});
+
+describe("Task delete for project", () => {
+  it("should delete tasks t1 & t2 for project p1", async () => {
+    const projectName = "p1";
+    await model.create({ title: "t1", type: "testCase", projectName: "p1" });
+
+    await model.create({ title: "t2", type: "testCase", projectName: "p1" });
+    return model.deleteForProject(projectName).then((deletedCount) => {
+      expect(deletedCount).toBe(2);
+    });
+  });
+  it("should reject with 'project not found' for project p3 that doesn't exist", () => {
+    const nonExistentProject = "p3";
+    return expect(model.deleteForProject(nonExistentProject)).rejects.toMatch(
+      "project not found"
+    );
+  });
 });

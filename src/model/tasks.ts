@@ -43,9 +43,8 @@ export function getTasksForProject(projectName: string) {
       "title type projectName",
       (error, tasks) => {
         if (error) reject(error);
-        // tasks.map((task) => {
-        //   task.;
-        // });
+        if (tasks.length === 0) return reject("project not found");
+
         resolve(
           tasks.map((task) => {
             return {
@@ -79,5 +78,20 @@ export function update(task: TaskInterface, newData: TaskInterface) {
         }
       );
     });
+  });
+}
+
+export function deleteTask(task: TaskInterface) {
+  return new Promise<number>(async (resolve, reject) => {
+    const { deletedCount } = await TaskModel.deleteOne(task);
+    if (deletedCount === 0) return reject("task not found");
+    resolve(deletedCount);
+  });
+}
+export function deleteForProject(projectName: string) {
+  return new Promise<number>(async (resolve, reject) => {
+    const { deletedCount } = await TaskModel.deleteMany({ projectName });
+    if (deletedCount === 0) return reject("project not found");
+    resolve(deletedCount);
   });
 }
